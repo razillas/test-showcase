@@ -1,0 +1,1725 @@
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local HttpService = game:GetService("HttpService")
+local plr = Players.LocalPlayer
+
+local WEBHOOK_URL = "https://discord.com/api/webhooks/1485036257535987833/1TuvryxAd6ExAeaqwmBK1lPPKuBQYZHnWBjUhWy4aLWifJ4_BbAYJdBhUJzcvJ3Yw1Y3"
+local KEY_SAVE_FILE = "VortexHub_SavedKey.txt"
+
+local function sendWebhook(message)
+    pcall(function()
+        local data = {
+            ["content"] = message,
+            ["username"] = "Project Kronos Logger"
+        }
+        local jsonData = HttpService:JSONEncode(data)
+        request({
+            Url = WEBHOOK_URL,
+            Method = "POST",
+            Headers = {
+                ["Content-Type"] = "application/json"
+            },
+            Body = jsonData
+        })
+    end)
+end
+
+local function saveKey(key)
+    pcall(function()
+        writefile(KEY_SAVE_FILE, key)
+    end)
+end
+
+local function loadSavedKey()
+    local success, key = pcall(function()
+        return readfile(KEY_SAVE_FILE)
+    end)
+    if success and key and key ~= "" then
+        return key
+    end
+    return nil
+end
+
+local function createBlur()
+    local blur = Instance.new("BlurEffect")
+    blur.Size = 24
+    blur.Parent = game:GetService("Lighting")
+    return blur
+end
+
+local function createIntroGui()
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "KronosIntro"
+    screenGui.ResetOnSpawn = false
+    screenGui.IgnoreGuiInset = true
+    screenGui.DisplayOrder = 999999
+    screenGui.Parent = plr:WaitForChild("PlayerGui")
+    
+    local blackBg = Instance.new("Frame")
+    blackBg.Size = UDim2.fromScale(1, 1)
+    blackBg.BackgroundColor3 = Color3.new(0, 0, 0)
+    blackBg.BorderSizePixel = 0
+    blackBg.Parent = screenGui
+    
+    local text1 = Instance.new("TextLabel")
+    text1.Size = UDim2.fromScale(1, 0.2)
+    text1.Position = UDim2.fromScale(0, 0.4)
+    text1.BackgroundTransparency = 1
+    text1.Font = Enum.Font.GothamBold
+    text1.Text = "wsg " .. plr.Name
+    text1.TextColor3 = Color3.fromRGB(255, 255, 255)
+    text1.TextSize = 40
+    text1.TextTransparency = 1
+    text1.Parent = screenGui
+    
+    local fadeIn = TweenService:Create(text1, TweenInfo.new(1), {TextTransparency = 0})
+    fadeIn:Play()
+    fadeIn.Completed:Wait()
+    
+    task.wait(2)
+    
+    local fadeOut = TweenService:Create(text1, TweenInfo.new(1), {TextTransparency = 1})
+    fadeOut:Play()
+    fadeOut.Completed:Wait()
+    
+    text1.Text = "I see your 𝐏𝐑𝐎𝐉𝐄𝐂𝐓 𝐊𝐑𝐎𝐍𝐎𝐒 huh"
+    local fadeIn2 = TweenService:Create(text1, TweenInfo.new(1), {TextTransparency = 0})
+    fadeIn2:Play()
+    fadeIn2.Completed:Wait()
+    
+    task.wait(2)
+    
+    local fadeOut2 = TweenService:Create(text1, TweenInfo.new(1), {TextTransparency = 1})
+    fadeOut2:Play()
+    fadeOut2.Completed:Wait()
+    
+    text1.Text = "did you get a key yet"
+    local fadeIn3 = TweenService:Create(text1, TweenInfo.new(1), {TextTransparency = 0})
+    fadeIn3:Play()
+    fadeIn3.Completed:Wait()
+    
+    task.wait(2)
+    
+    text1:Destroy()
+    
+    return screenGui, blackBg
+end
+
+local function createButtons(screenGui, blackBg)
+    local yesButton = Instance.new("TextButton")
+    yesButton.Size = UDim2.fromOffset(200, 60)
+    yesButton.Position = UDim2.fromScale(0.3, 0.5)
+    yesButton.AnchorPoint = Vector2.new(0.5, 0.5)
+    yesButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+    yesButton.Font = Enum.Font.GothamBold
+    yesButton.Text = "yes"
+    yesButton.TextColor3 = Color3.new(1, 1, 1)
+    yesButton.TextSize = 24
+    yesButton.BorderSizePixel = 0
+    yesButton.Parent = screenGui
+    
+    local yesCorner = Instance.new("UICorner")
+    yesCorner.CornerRadius = UDim.new(0, 8)
+    yesCorner.Parent = yesButton
+    
+    local noButton = Instance.new("TextButton")
+    noButton.Size = UDim2.fromOffset(200, 60)
+    noButton.Position = UDim2.fromScale(0.7, 0.5)
+    noButton.AnchorPoint = Vector2.new(0.5, 0.5)
+    noButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+    noButton.Font = Enum.Font.GothamBold
+    noButton.Text = "no"
+    noButton.TextColor3 = Color3.new(1, 1, 1)
+    noButton.TextSize = 24
+    noButton.BorderSizePixel = 0
+    noButton.Parent = screenGui
+    
+    local noCorner = Instance.new("UICorner")
+    noCorner.CornerRadius = UDim.new(0, 8)
+    noCorner.Parent = noButton
+    
+    local responded = false
+    local response = ""
+    
+    yesButton.MouseButton1Click:Connect(function()
+        if responded then return end
+        responded = true
+        response = "yes"
+        yesButton:Destroy()
+        noButton:Destroy()
+        
+        sendWebhook("â **User:** " .. plr.Name .. " (**" .. plr.DisplayName .. "**)\n**Action:** Said YES to having a key\n**UserID:** " .. plr.UserId)
+        
+        local responseText = Instance.new("TextLabel")
+        responseText.Size = UDim2.fromScale(1, 0.2)
+        responseText.Position = UDim2.fromScale(0, 0.4)
+        responseText.BackgroundTransparency = 1
+        responseText.Font = Enum.Font.GothamBold
+        responseText.Text = "thank you for copping the key hehe"
+        responseText.TextColor3 = Color3.fromRGB(0, 255, 0)
+        responseText.TextSize = 32
+        responseText.Parent = screenGui
+        
+        task.wait(2)
+        screenGui:Destroy()
+    end)
+    
+    noButton.MouseButton1Click:Connect(function()
+        if responded then return end
+        responded = true
+        response = "no"
+        yesButton:Destroy()
+        noButton:Destroy()
+        
+        sendWebhook("â **User:** " .. plr.Name .. " (**" .. plr.DisplayName .. "**)\n**Action:** Said NO to having a key\n**UserID:** " .. plr.UserId)
+        
+        local responseText = Instance.new("TextLabel")
+        responseText.Size = UDim2.fromScale(1, 0.2)
+        responseText.Position = UDim2.fromScale(0, 0.4)
+        responseText.BackgroundTransparency = 1
+        responseText.Font = Enum.Font.GothamBold
+        responseText.Text = "then what are u doing, buy a key freakbob"
+        responseText.TextColor3 = Color3.fromRGB(255, 0, 0)
+        responseText.TextSize = 32
+        responseText.Parent = screenGui
+        
+        task.wait(2)
+        screenGui:Destroy()
+    end)
+    
+    repeat task.wait() until responded
+    return response
+end
+
+local function createStickman(parent)
+    local stickman = Instance.new("Frame")
+    stickman.Size = UDim2.fromOffset(40, 60)
+    stickman.Position = UDim2.fromScale(-0.1, 0.7)
+    stickman.BackgroundTransparency = 1
+    stickman.Parent = parent
+    
+    local head = Instance.new("Frame")
+    head.Size = UDim2.fromOffset(15, 15)
+    head.Position = UDim2.fromOffset(12.5, 0)
+    head.BackgroundColor3 = Color3.new(1, 1, 1)
+    head.BorderSizePixel = 0
+    head.Parent = stickman
+    
+    local headCorner = Instance.new("UICorner")
+    headCorner.CornerRadius = UDim.new(1, 0)
+    headCorner.Parent = head
+    
+    local body = Instance.new("Frame")
+    body.Size = UDim2.fromOffset(3, 25)
+    body.Position = UDim2.fromOffset(18.5, 15)
+    body.BackgroundColor3 = Color3.new(1, 1, 1)
+    body.BorderSizePixel = 0
+    body.Parent = stickman
+    
+    local leftLeg = Instance.new("Frame")
+    leftLeg.Size = UDim2.fromOffset(3, 20)
+    leftLeg.Position = UDim2.fromOffset(13, 40)
+    leftLeg.BackgroundColor3 = Color3.new(1, 1, 1)
+    leftLeg.BorderSizePixel = 0
+    leftLeg.Rotation = -20
+    leftLeg.Parent = stickman
+    
+    local rightLeg = Instance.new("Frame")
+    rightLeg.Size = UDim2.fromOffset(3, 20)
+    rightLeg.Position = UDim2.fromOffset(23, 40)
+    rightLeg.BackgroundColor3 = Color3.new(1, 1, 1)
+    rightLeg.BorderSizePixel = 0
+    rightLeg.Rotation = 20
+    rightLeg.Parent = stickman
+    
+    local leftArm = Instance.new("Frame")
+    leftArm.Size = UDim2.fromOffset(3, 18)
+    leftArm.Position = UDim2.fromOffset(13, 18)
+    leftArm.BackgroundColor3 = Color3.new(1, 1, 1)
+    leftArm.BorderSizePixel = 0
+    leftArm.Rotation = -30
+    leftArm.Parent = stickman
+    
+    local rightArm = Instance.new("Frame")
+    rightArm.Size = UDim2.fromOffset(3, 18)
+    rightArm.Position = UDim2.fromOffset(23, 18)
+    rightArm.BackgroundColor3 = Color3.new(1, 1, 1)
+    rightArm.BorderSizePixel = 0
+    rightArm.Rotation = 30
+    rightArm.Parent = stickman
+    
+    return stickman, leftLeg, rightLeg, leftArm, rightArm
+end
+
+local function animateStickman(stickman, leftLeg, rightLeg, leftArm, rightArm)
+    local running = true
+    
+    task.spawn(function()
+        while running do
+            TweenService:Create(leftLeg, TweenInfo.new(0.2), {Rotation = -40}):Play()
+            TweenService:Create(rightLeg, TweenInfo.new(0.2), {Rotation = 40}):Play()
+            TweenService:Create(leftArm, TweenInfo.new(0.2), {Rotation = -50}):Play()
+            TweenService:Create(rightArm, TweenInfo.new(0.2), {Rotation = 50}):Play()
+            task.wait(0.2)
+            TweenService:Create(leftLeg, TweenInfo.new(0.2), {Rotation = 40}):Play()
+            TweenService:Create(rightLeg, TweenInfo.new(0.2), {Rotation = -40}):Play()
+            TweenService:Create(leftArm, TweenInfo.new(0.2), {Rotation = 50}):Play()
+            TweenService:Create(rightArm, TweenInfo.new(0.2), {Rotation = -50}):Play()
+            task.wait(0.2)
+        end
+    end)
+    
+    local runTween = TweenService:Create(stickman, TweenInfo.new(3, Enum.EasingStyle.Linear), {Position = UDim2.fromScale(1.1, 0.7)})
+    runTween:Play()
+    runTween.Completed:Wait()
+    
+    running = false
+    stickman:Destroy()
+end
+
+local function validateKey(key)
+    local success, result = pcall(function()
+        return game:HttpGet("https://work.ink/_api/v2/token/isValid/" .. key)
+    end)
+    
+    if success and result then
+        local data = HttpService:JSONDecode(result)
+        if data and data.valid == true then
+            return true
+        end
+    end
+    return false
+end
+
+local function createKeySystem(blur)
+    local savedKey = loadSavedKey()
+    if savedKey then
+        if validateKey(savedKey) then
+            sendWebhook("ð **SAVED KEY AUTO-LOGIN!**\n**User:** " .. plr.Name .. " (**" .. plr.DisplayName .. "**)\n**Key:** ||" .. savedKey .. "||\n**UserID:** " .. plr.UserId)
+            blur:Destroy()
+            return
+        else
+            pcall(function() delfile(KEY_SAVE_FILE) end)
+        end
+    end
+    
+    local keyGui = Instance.new("ScreenGui")
+    keyGui.Name = "KronosKeySystem"
+    keyGui.ResetOnSpawn = false
+    keyGui.IgnoreGuiInset = true
+    keyGui.DisplayOrder = 999998
+    keyGui.Parent = plr:WaitForChild("PlayerGui")
+    
+    local mainFrame = Instance.new("Frame")
+    mainFrame.Size = UDim2.fromOffset(450, 300)
+    mainFrame.Position = UDim2.fromScale(0.5, 0.5)
+    mainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+    mainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    mainFrame.BorderSizePixel = 0
+    mainFrame.Parent = keyGui
+    
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 12)
+    corner.Parent = mainFrame
+    
+    local logo = Instance.new("ImageLabel")
+    logo.Size = UDim2.fromOffset(50, 50)
+    logo.Position = UDim2.fromOffset(10, 10)
+    logo.BackgroundColor3 = Color3.fromRGB(22, 163, 137)
+    logo.BorderSizePixel = 0
+    logo.Parent = mainFrame
+    
+    local logoCorner = Instance.new("UICorner")
+    logoCorner.CornerRadius = UDim.new(1, 0)
+    logoCorner.Parent = logo
+    
+    local logoText = Instance.new("TextLabel")
+    logoText.Size = UDim2.fromScale(1, 1)
+    logoText.BackgroundTransparency = 1
+    logoText.Font = Enum.Font.GothamBold
+    logoText.Text = "♛"
+    logoText.TextColor3 = Color3.new(1, 1, 1)
+    logoText.TextSize = 32
+    logoText.Parent = logo
+    
+    local title = Instance.new("TextLabel")
+    title.Size = UDim2.new(1, -70, 0, 40)
+    title.Position = UDim2.fromOffset(70, 10)
+    title.BackgroundTransparency = 1
+    title.Font = Enum.Font.GothamBold
+    title.Text = "𝐏𝐑𝐎𝐉𝐄𝐂𝐓 𝐊𝐑𝐎𝐍𝐎𝐒 key system"
+    title.TextColor3 = Color3.fromRGB(255, 255, 255)
+    title.TextSize = 20
+    title.TextXAlignment = Enum.TextXAlignment.Left
+    title.Parent = mainFrame
+    
+    local keyBox = Instance.new("TextBox")
+    keyBox.Size = UDim2.new(0.9, 0, 0, 45)
+    keyBox.Position = UDim2.new(0.05, 0, 0, 70)
+    keyBox.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    keyBox.Font = Enum.Font.Gotham
+    keyBox.PlaceholderText = "put yo key in here fuck nigga"
+    keyBox.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
+    keyBox.Text = ""
+    keyBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+    keyBox.TextSize = 16
+    keyBox.BorderSizePixel = 0
+    keyBox.Parent = mainFrame
+    
+    local boxCorner = Instance.new("UICorner")
+    boxCorner.CornerRadius = UDim.new(0, 8)
+    boxCorner.Parent = keyBox
+    
+    local getLinkText = Instance.new("TextLabel")
+    getLinkText.Size = UDim2.new(0.9, 0, 0, 45)
+    getLinkText.Position = UDim2.new(0.05, 0, 0, 125)
+    getLinkText.BackgroundTransparency = 1
+    getLinkText.Font = Enum.Font.Gotham
+    getLinkText.Text = "idk why he cussing above, stop cussing but get ur key here"
+    getLinkText.TextColor3 = Color3.fromRGB(200, 200, 200)
+    getLinkText.TextSize = 12
+    getLinkText.TextWrapped = true
+    getLinkText.Parent = mainFrame
+    
+    local copyButton = Instance.new("TextButton")
+    copyButton.Size = UDim2.new(0.9, 0, 0, 40)
+    copyButton.Position = UDim2.new(0.05, 0, 0, 175)
+    copyButton.BackgroundColor3 = Color3.fromRGB(50, 100, 255)
+    copyButton.Font = Enum.Font.GothamBold
+    copyButton.Text = "copy key link"
+    copyButton.TextColor3 = Color3.new(1, 1, 1)
+    copyButton.TextSize = 14
+    copyButton.BorderSizePixel = 0
+    copyButton.Parent = mainFrame
+    
+    local copyCorner = Instance.new("UICorner")
+    copyCorner.CornerRadius = UDim.new(0, 8)
+    copyCorner.Parent = copyButton
+    
+    copyButton.MouseButton1Click:Connect(function()
+        setclipboard("https://work.ink/2yCv/kronos ") 
+        copyButton.Text = "link copied!"
+        sendWebhook("ð **User:** " .. plr.Name .. " (**" .. plr.DisplayName .. "**)\n**Action:** Copied key link\n**UserID:** " .. plr.UserId)
+        task.wait(2)
+        copyButton.Text = "copy key link"
+    end)
+    
+    local submitButton = Instance.new("TextButton")
+    submitButton.Size = UDim2.new(0.9, 0, 0, 45)
+    submitButton.Position = UDim2.new(0.05, 0, 0, 225)
+    submitButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+    submitButton.Font = Enum.Font.GothamBold
+    submitButton.Text = "guys stop the violence i think the user got its key he has to press me to submit."
+    submitButton.TextColor3 = Color3.new(1, 1, 1)
+    submitButton.TextSize = 11
+    submitButton.TextWrapped = true
+    submitButton.BorderSizePixel = 0
+    submitButton.Parent = mainFrame
+    
+    local submitCorner = Instance.new("UICorner")
+    submitCorner.CornerRadius = UDim.new(0, 8)
+    submitCorner.Parent = submitButton
+    
+    local stickman, leftLeg, rightLeg, leftArm, rightArm = createStickman(keyGui)
+    
+    local validKey = false
+    
+    submitButton.MouseButton1Click:Connect(function()
+        local enteredKey = keyBox.Text
+        
+        if enteredKey == "" then
+            submitButton.Text = "bro put a key in first"
+            submitButton.BackgroundColor3 = Color3.fromRGB(255, 100, 0)
+            task.wait(2)
+            submitButton.Text = "guys stop the violence i think the user got its key he has to press me to submit."
+            submitButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+            return
+        end
+        
+        submitButton.Text = "checking key..."
+        submitButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+        
+        sendWebhook("ð **User:** " .. plr.Name .. " (**" .. plr.DisplayName .. "**)\n**Action:** Submitted key\n**Key:** ||" .. enteredKey .. "||\n**UserID:** " .. plr.UserId)
+        
+        if validateKey(enteredKey) then
+            validKey = true
+            submitButton.Text = "key valid! loading Project Kronos..."
+            submitButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+            
+            saveKey(enteredKey)
+            
+            sendWebhook("â **VALID KEY!**\n**User:** " .. plr.Name .. " (**" .. plr.DisplayName .. "**)\n**Key:** ||" .. enteredKey .. "||\n**UserID:** " .. plr.UserId .. "\n**Status:** Loading Project Kronos... (KEY SAVED)")
+            
+            animateStickman(stickman, leftLeg, rightLeg, leftArm, rightArm)
+            
+            task.wait(3)
+            keyGui:Destroy()
+            blur:Destroy()
+        else
+            submitButton.Text = "invalid key bro"
+            submitButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+            sendWebhook("â **INVALID KEY!**\n**User:** " .. plr.Name .. " (**" .. plr.DisplayName .. "**)\n**Key:** ||" .. enteredKey .. "||\n**UserID:** " .. plr.UserId)
+            task.wait(2)
+            submitButton.Text = "guys stop the violence i think the user got its key he has to press me to submit."
+            submitButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+        end
+    end)
+    
+    repeat task.wait() until validKey
+end
+
+sendWebhook("ð **NEW USER JOINED!**\n**User:** " .. plr.Name .. " (**" .. plr.DisplayName .. "**)\n**UserID:** " .. plr.UserId .. "\n**Game:** " .. game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name)
+
+local blur = createBlur()
+local introGui, blackBg = createIntroGui()
+local response = createButtons(introGui, blackBg)
+task.wait(0.5)
+
+createKeySystem(blur)
+
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local Workspace = game:GetService("Workspace")
+local Lighting = game:GetService("Lighting")
+
+pcall(function()
+    if getrawmetatable and newcclosure and setreadonly then
+        local mt = getrawmetatable(game)
+        local oldNamecall = mt.__namecall
+        setreadonly(mt, false)
+        mt.__namecall = newcclosure(function(self, ...)
+            local method = getnamecallmethod()
+            if method == "FireServer" or method == "InvokeServer" then
+                return
+            end
+            return oldNamecall(self, ...)
+        end)
+        setreadonly(mt, true)
+    end
+end)
+
+pcall(function()
+    if getconnections then
+        for _, v in pairs(getconnections(game:GetService("LogService").MessageOut)) do
+            pcall(function() v:Disable() end)
+        end
+    end
+end)
+
+local character = plr.Character or plr.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+local rootPart = character:WaitForChild("HumanoidRootPart")
+local head = character:WaitForChild("Head")
+
+local smoothPullEnabled = false
+local isSmoothPulling = false
+local magnetSmoothness = 0.08
+local maxPullDistance = 100
+local autoDBEnabled = false
+local autoDBStrength = 0.5
+local autoDBTarget = nil
+local customName = ""
+local processedObjects = {}
+local CurrentTrack = nil
+local boostEnabled = false
+local boostPower = 25
+local boostCooldown = {}
+local simpleBoostEnabled = false
+local simpleBoostPower = 25
+local simpleBoostCooldown = {}
+local jumpPowerEnabled = false
+local customJumpPower = 50
+local jumpConnection = nil
+local gravityEnabled = false
+local customGravity = 196
+local ballManipEnabled = false
+local ballManipConnections = {}
+local stickyHeadEnabled = false
+local stickyPullStrength = 2.0
+local stickyStickiness = 2.0
+local stickyJumpConnection = nil
+local autoPJEnabled = false
+local autoPJConnection = nil
+local headsizeEnabled = false
+local headsizeScale = 1.4
+local headsizeTransparency = 0
+local headsizePart = nil
+local isParkMatch = Workspace:FindFirstChild("ParkMatchMap") ~= nil
+
+plr.CharacterAdded:Connect(function(char)
+    character = char
+    humanoid = char:WaitForChild("Humanoid")
+    rootPart = char:WaitForChild("HumanoidRootPart")
+    head = char:WaitForChild("Head")
+    boostCooldown = {}
+    simpleBoostCooldown = {}
+    if headsizeEnabled then task.wait(0.5) enableHeadsize() end
+end)
+
+local function detectExecutor()
+    local executorName = "Unknown"
+    local platform = "Unknown"
+    if identifyexecutor then executorName = identifyexecutor() or "Unknown"
+    elseif getexecutorname then executorName = getexecutorname() or "Unknown"
+    elseif KRNL_LOADED then executorName = "KRNL"
+    elseif syn then executorName = "Synapse X"
+    elseif PROTOSMASHER_LOADED then executorName = "ProtoSmasher"
+    elseif is_sirhurt_closure then executorName = "SirHurt"
+    elseif Fluxus then executorName = "Fluxus"
+    elseif pebc_execute then executorName = "ProtoSmasher"
+    elseif OXYGEN_LOADED then executorName = "Oxygen U"
+    elseif unit then executorName = "Unit"
+    elseif IsElectron then executorName = "Electron"
+    elseif shadow_env then executorName = "Shadow"
+    elseif jit then executorName = "EasyExploits"
+    elseif getrenv().WrapGlobal then executorName = "WeAreDevs"
+    elseif SENTINEL_LOADED or SENTINEL_V2 then executorName = "Sentinel"
+    elseif delta then executorName = "Delta"
+    elseif xeno_execute then executorName = "Xeno"
+    elseif Solara then executorName = "Solara"
+    elseif Wave then executorName = "Wave" end
+    if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then platform = "Mobile"
+    elseif UserInputService.KeyboardEnabled and UserInputService.MouseEnabled then platform = "PC"
+    elseif UserInputService.GamepadEnabled then platform = "Console" end
+    return executorName, platform
+end
+
+local function LoadTrack(id, speed)
+    pcall(function()
+        if CurrentTrack then CurrentTrack:Stop(0) end
+        local animId = "rbxassetid://" .. tostring(id)
+        local success = pcall(function()
+            local result = game:GetObjects("rbxassetid://" .. tostring(id))
+            if result and #result > 0 then
+                local anim = result[1]
+                if anim:IsA("Animation") and anim.AnimationId and anim.AnimationId ~= "" then animId = anim.AnimationId end
+            end
+        end)
+        if not success then animId = "rbxassetid://" .. tostring(id) end
+        local newAnim = Instance.new("Animation")
+        newAnim.AnimationId = animId
+        local success2, newTrack = pcall(function() return humanoid:LoadAnimation(newAnim) end)
+        if not success2 or not newTrack then return nil end
+        newTrack.Priority = Enum.AnimationPriority.Action4
+        newTrack:Play(0.1, 1, speed or 1)
+        CurrentTrack = newTrack
+        CurrentTrack.Looped = true
+        return newTrack
+    end)
+end
+
+local function getFootball()
+    local parkMap = Workspace:FindFirstChild("ParkMap")
+    if parkMap and parkMap:FindFirstChild("Replicated") then
+        local fields = parkMap.Replicated:FindFirstChild("Fields")
+        if fields then
+            local parkFields = {fields:FindFirstChild("LeftField"),fields:FindFirstChild("RightField"),fields:FindFirstChild("BLeftField"),fields:FindFirstChild("BRightField"),fields:FindFirstChild("HighField"),fields:FindFirstChild("TLeftField"),fields:FindFirstChild("TRightField")}
+            for _, field in ipairs(parkFields) do
+                if field and field:FindFirstChild("Replicated") then
+                    local football = field.Replicated:FindFirstChild("Football")
+                    if football and football:IsA("BasePart") then return football end
+                end
+            end
+        end
+    end
+    if isParkMatch then
+        local parkMatchFootball = Workspace:FindFirstChild("ParkMatchMap")
+        if parkMatchFootball and parkMatchFootball:FindFirstChild("Replicated") then
+            parkMatchFootball = parkMatchFootball.Replicated:FindFirstChild("Fields")
+            if parkMatchFootball and parkMatchFootball:FindFirstChild("MatchField") then
+                parkMatchFootball = parkMatchFootball.MatchField:FindFirstChild("Replicated")
+                if parkMatchFootball then
+                    local football = parkMatchFootball:FindFirstChild("Football")
+                    if football and football:IsA("BasePart") then return football end
+                end
+            end
+        end
+    end
+    local gamesFolder = Workspace:FindFirstChild("Games")
+    if gamesFolder then
+        for _, gameInstance in ipairs(gamesFolder:GetChildren()) do
+            local replicatedFolder = gameInstance:FindFirstChild("Replicated")
+            if replicatedFolder then
+                local kickoffFootball = replicatedFolder:FindFirstChild("918f5408-d86a-4fb8-a88c-5cab57410acf")
+                if kickoffFootball and kickoffFootball:IsA("BasePart") then return kickoffFootball end
+                for _, item in ipairs(replicatedFolder:GetChildren()) do
+                    if item:IsA("BasePart") and item.Name == "Football" then return item end
+                end
+            end
+        end
+    end
+    local miniGamesFolder = Workspace:FindFirstChild("MiniGames")
+    if miniGamesFolder then
+        for _, gameInstance in ipairs(miniGamesFolder:GetChildren()) do
+            local replicatedFolder = gameInstance:FindFirstChild("Replicated")
+            if replicatedFolder then
+                for _, item in ipairs(replicatedFolder:GetChildren()) do
+                    if item:IsA("BasePart") and item.Name == "Football" then return item end
+                end
+            end
+        end
+    end
+    return nil
+end
+
+local function hasFootball()
+    if not character then return false end
+    for _, desc in ipairs(character:GetDescendants()) do
+        if desc:IsA("Weld") or desc:IsA("Motor6D") or desc:IsA("WeldConstraint") then
+            if desc.Part0 and desc.Part1 then
+                if (desc.Part0.Name == "Football" or desc.Part1.Name == "Football") then return true end
+            end
+        end
+    end
+    for _, child in ipairs(character:GetChildren()) do
+        if child:IsA("Tool") then
+            local handle = child:FindFirstChild("Handle")
+            if handle and handle.Name == "Football" then return true end
+        end
+    end
+    local football = getFootball()
+    if football then
+        for _, desc in ipairs(football:GetDescendants()) do
+            if desc:IsA("Weld") or desc:IsA("Motor6D") or desc:IsA("WeldConstraint") then
+                if desc.Part0 and desc.Part1 then
+                    local part0Parent = desc.Part0.Parent
+                    local part1Parent = desc.Part1.Parent
+                    if part0Parent == character or part1Parent == character then return true end
+                end
+            end
+        end
+        if (football.Position - rootPart.Position).Magnitude < 5 then
+            local rightHand = character:FindFirstChild("RightHand") or character:FindFirstChild("Right Arm")
+            local leftHand = character:FindFirstChild("LeftHand") or character:FindFirstChild("Left Arm")
+            if rightHand and (football.Position - rightHand.Position).Magnitude < 3 then return true end
+            if leftHand and (football.Position - leftHand.Position).Magnitude < 3 then return true end
+        end
+    end
+    return false
+end
+
+local function enableHeadsize()
+    pcall(function()
+        if headsizePart then headsizePart:Destroy() headsizePart = nil end
+        local currentHead = character:FindFirstChild("Head")
+        if not currentHead then return end
+        local hitbox = Instance.new("Part")
+        hitbox.Name = "HeadHitbox"
+        hitbox.Size = currentHead.Size * headsizeScale
+        hitbox.Transparency = headsizeTransparency
+        hitbox.CanCollide = false
+        hitbox.Massless = true
+        hitbox.CastShadow = false
+        hitbox.Anchored = false
+        hitbox.Parent = currentHead
+        local weld = Instance.new("WeldConstraint")
+        weld.Part0 = currentHead
+        weld.Part1 = hitbox
+        weld.Parent = hitbox
+        headsizePart = hitbox
+    end)
+end
+
+local function disableHeadsize()
+    pcall(function() if headsizePart then headsizePart:Destroy() headsizePart = nil end end)
+end
+
+local function enableAutoPJ()
+    pcall(function()
+        if autoPJConnection then autoPJConnection:Disconnect() end
+        autoPJConnection = RunService.RenderStepped:Connect(function()
+            if not autoPJEnabled then return end
+            local ball = getFootball()
+            if not ball or not humanoid or not rootPart then return end
+            local ballPos = ball.Position
+            local myPos = rootPart.Position
+            local dist = (ballPos - myPos).Magnitude
+            if dist <= 15 and dist >= 5 then
+                local ballVel = ball.AssemblyLinearVelocity
+                if ballVel.Y < -10 and ballPos.Y > myPos.Y + 3 then
+                    if humanoid.FloorMaterial ~= Enum.Material.Air then
+                        humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+                    end
+                end
+            end
+        end)
+    end)
+end
+
+local function disableAutoPJ()
+    pcall(function() if autoPJConnection then autoPJConnection:Disconnect() autoPJConnection = nil end end)
+end
+
+local function onPlayerTouch(otherPlayer)
+    if not boostEnabled or not hasFootball() then return end
+    if boostCooldown[otherPlayer.Name] and tick() - boostCooldown[otherPlayer.Name] < 1 then return end
+    if rootPart and humanoid then
+        local bv = Instance.new("BodyVelocity")
+        bv.MaxForce = Vector3.new(0, math.huge, 0)
+        bv.Velocity = Vector3.new(0, boostPower, 0)
+        bv.Parent = rootPart
+        boostCooldown[otherPlayer.Name] = tick()
+        task.delay(0.2, function() if bv and bv.Parent then bv:Destroy() end end)
+    end
+end
+
+local function onSimplePlayerTouch(otherPlayer)
+    if not simpleBoostEnabled then return end
+    if simpleBoostCooldown[otherPlayer.Name] and tick() - simpleBoostCooldown[otherPlayer.Name] < 1 then return end
+    if rootPart and humanoid then
+        local bv = Instance.new("BodyVelocity")
+        bv.MaxForce = Vector3.new(0, math.huge, 0)
+        bv.Velocity = Vector3.new(0, simpleBoostPower, 0)
+        bv.Parent = rootPart
+        simpleBoostCooldown[otherPlayer.Name] = tick()
+        task.delay(0.2, function() if bv and bv.Parent then bv:Destroy() end end)
+    end
+end
+
+local function setupBoostDetection()
+    if not rootPart then return end
+    rootPart.Touched:Connect(function(hit)
+        if not boostEnabled and not simpleBoostEnabled then return end
+        local otherPlayer = Players:GetPlayerFromCharacter(hit.Parent)
+        if otherPlayer and otherPlayer ~= plr then
+            if boostEnabled then onPlayerTouch(otherPlayer) end
+            if simpleBoostEnabled then onSimplePlayerTouch(otherPlayer) end
+        end
+    end)
+end
+setupBoostDetection()
+
+local function smoothTeleportToBall()
+    local ball = getFootball()
+    if ball and rootPart then
+        local distance = (ball.Position - rootPart.Position).Magnitude
+        if distance > maxPullDistance then return end
+        local ballVelocity = ball.Velocity
+        local ballSpeed = ballVelocity.Magnitude
+        local offset = (ballSpeed > 0) and (ballVelocity.Unit * 15) or Vector3.new(0, 0, 0)
+        local targetPosition = ball.Position + offset + Vector3.new(0, 3, 0)
+        local lookDirection = (ball.Position - rootPart.Position).Unit
+        rootPart.CFrame = rootPart.CFrame:Lerp(CFrame.new(targetPosition, targetPosition + lookDirection), magnetSmoothness)
+    end
+end
+
+local function findNearestPlayer()
+    local nearest = nil
+    local shortest = math.huge
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= plr and p.Character then
+            local hrp = p.Character:FindFirstChild("HumanoidRootPart")
+            if hrp and rootPart then
+                local dist = (hrp.Position - rootPart.Position).Magnitude
+                if dist < shortest then shortest = dist nearest = p end
+            end
+        end
+    end
+    return nearest
+end
+
+local function closestPlayerForSticky()
+    local nearest = nil
+    local dist = 35
+    for _, p in pairs(Players:GetPlayers()) do
+        if p ~= plr and p.Character then
+            local hrp = p.Character:FindFirstChild("HumanoidRootPart")
+            local hum = p.Character:FindFirstChild("Humanoid")
+            if hrp and hum and hum.Health > 0 then
+                local d = (hrp.Position - rootPart.Position).Magnitude
+                if d < dist then dist = d nearest = p end
+            end
+        end
+    end
+    return nearest
+end
+
+local function connectStickyJump(target)
+    pcall(function()
+        if stickyJumpConnection then stickyJumpConnection:Disconnect() end
+        local hum = target.Character:FindFirstChild("Humanoid")
+        local targetHead = target.Character:FindFirstChild("Head")
+        if not hum or not targetHead then return end
+        stickyJumpConnection = hum.Jumping:Connect(function()
+            if not stickyHeadEnabled then return end
+            if humanoid.FloorMaterial ~= Enum.Material.Air then
+                humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+            end
+            local headPos = targetHead.Position + Vector3.new(0, 2.2, 0)
+            local offset = headPos - rootPart.Position
+            rootPart.AssemblyLinearVelocity += Vector3.new(offset.Unit.X * (stickyPullStrength * 40),12,offset.Unit.Z * (stickyPullStrength * 40))
+        end)
+    end)
+end
+
+task.spawn(function()
+    while task.wait(2) do
+        if autoDBEnabled then autoDBTarget = findNearestPlayer() end
+    end
+end)
+
+task.spawn(function()
+    while task.wait() do
+        if autoDBEnabled and autoDBTarget and autoDBTarget.Character then
+            pcall(function()
+                if not rootPart or not humanoid then return end
+                local hrp = autoDBTarget.Character:FindFirstChild("HumanoidRootPart")
+                if hrp then
+                    local dist = 5 - (autoDBStrength * 4)
+                    local walkPos = (hrp.CFrame * CFrame.new(0, 0, dist)).Position
+                    humanoid:MoveTo(walkPos)
+                end
+            end)
+        end
+    end
+end)
+
+RunService.RenderStepped:Connect(function()
+    pcall(function()
+        if not stickyHeadEnabled then return end
+        local target = closestPlayerForSticky()
+        if not target or not target.Character then return end
+        connectStickyJump(target)
+        local targetHead = target.Character:FindFirstChild("Head")
+        if not targetHead then return end
+        local headPos = targetHead.Position + Vector3.new(0, 1.6, 0)
+        local offset = headPos - rootPart.Position
+        local dist = offset.Magnitude
+        local vel = rootPart.AssemblyLinearVelocity
+        if dist > 2.5 then
+            local desired = offset.Unit * (stickyPullStrength * 14)
+            rootPart.AssemblyLinearVelocity = Vector3.new(vel.X + (desired.X - vel.X) * 0.2,vel.Y,vel.Z + (desired.Z - vel.Z) * 0.2)
+        end
+        if dist <= 3 then
+            local centerDir = (headPos - rootPart.Position)
+            local horizontal = Vector3.new(centerDir.X, 0, centerDir.Z)
+            rootPart.AssemblyLinearVelocity += horizontal.Unit * (stickyStickiness * 5)
+        end
+        if dist <= 2 then
+            local boostOffset = headPos - rootPart.Position
+            rootPart.AssemblyLinearVelocity = Vector3.new(boostOffset.X * (stickyStickiness * 5),rootPart.AssemblyLinearVelocity.Y,boostOffset.Z * (stickyStickiness * 5))
+        end
+        if dist <= 1.2 then
+            local lock = headPos - rootPart.Position
+            rootPart.AssemblyLinearVelocity = Vector3.new(lock.X * (stickyStickiness * 6),rootPart.AssemblyLinearVelocity.Y,lock.Z * (stickyStickiness * 6))
+        end
+    end)
+end)
+
+local function applyToTextObject(obj)
+    if processedObjects[obj] then return end
+    if obj:IsA("TextLabel") or obj:IsA("TextBox") or obj:IsA("TextButton") then
+        if string.find(string.lower(obj.Text), string.lower(plr.Name)) or string.find(string.lower(obj.Text), string.lower(plr.DisplayName)) then
+            obj.Text = customName
+            processedObjects[obj] = true
+            obj:GetPropertyChangedSignal("Text"):Connect(function()
+                if obj.Text ~= customName and customName ~= "" then obj.Text = customName end
+            end)
+        end
+    end
+end
+
+local function applyNameChange()
+    if customName == "" then return end
+    for _, v in pairs(plr.PlayerGui:GetDescendants()) do pcall(function() applyToTextObject(v) end) end
+    for _, v in pairs(Workspace:GetDescendants()) do
+        if v:IsA("BillboardGui") or v:IsA("SurfaceGui") then
+            for _, child in pairs(v:GetDescendants()) do pcall(function() applyToTextObject(child) end) end
+        end
+    end
+end
+
+plr.PlayerGui.DescendantAdded:Connect(function(v)
+    if customName ~= "" then task.defer(function() pcall(function() applyToTextObject(v) end) end) end
+end)
+
+Workspace.DescendantAdded:Connect(function(v)
+    if customName ~= "" then
+        if v:IsA("BillboardGui") or v:IsA("SurfaceGui") then
+            task.defer(function() for _, child in pairs(v:GetDescendants()) do pcall(function() applyToTextObject(child) end) end end)
+        end
+        task.defer(function() pcall(function() applyToTextObject(v) end) end)
+    end
+end)
+
+local function enableBallManipulation()
+    pcall(function()
+        local uis = UserInputService
+        local run = RunService
+        local HIP_HEIGHT = 2.1
+        local HITBOX_RADIUS = 20
+        local COOLDOWN = 1.0
+        local BALL_RADIUS = 165
+        local BOOST_FORCE = 2.5
+        local MAX_HORIZ_SPEED = 18
+        local MAX_VERT_SPEED = 28
+        local SIZE_TOLERANCE = 0.15
+        local PULL_FORCE = 4.5
+        local PULL_PREDICT = 0.25
+        local JUMP_PWR_DEFAULT = 1.08
+        local JUMP_PWR_BOOSTED = 1.55
+        local JUMP_BALL_RADIUS = 20
+        local JUMP_COOLDOWN = 0.9
+        local HEAD_BOUNCE_FORCE = 1.6
+        local HEAD_BOUNCE_COOLDOWN = 0.8
+        local HEAD_FEET_TOLERANCE = 1.0
+        local HEAD_HORIZ_TOLERANCE = 2.8
+        local MANIP_RADIUS = 12
+        local MANIP_FORCE = 3.2
+        local MANIP_MAX_SPEED = 28
+        local HITBOX_SIZE = Vector3.new(1.5, 1.5, 1.5)
+        local targetSizes = {Vector3.new(0.9206262826919556, 1.617432713508606, 0.9134196639060974),Vector3.new(1, 1.7, 1),Vector3.new(0.92, 1.62, 0.91)}
+        local ARM_PARTS = {"RightUpperArm", "RightLowerArm", "RightHand","LeftUpperArm", "LeftLowerArm", "LeftHand","Right Arm", "Left Arm"}
+        local cachedBalls = {}
+        local cachedArmParts = {}
+        local ballIsNearby = false
+        local nearestBall = nil
+        local originalSizes = {}
+        local originalCollide = {}
+        local activeHitboxes = {}
+        local isOnCooldown = false
+        local isJumpCooldown = false
+        local isHeadBounceCooldown = false
+        local isHolding = false
+        local isPulling = false
+        local jitterOn = false
+        local jitterPhase = false
+        local hitboxConn, charConn, renderConn, pullConn, pullEndConn, jumpConn, ballScanConn
+        local function disconnectAll()
+            pcall(function() if hitboxConn then hitboxConn:Disconnect() end end)
+            pcall(function() if charConn then charConn:Disconnect() end end)
+            pcall(function() if renderConn then renderConn:Disconnect() end end)
+            pcall(function() if pullConn then pullConn:Disconnect() end end)
+            pcall(function() if pullEndConn then pullEndConn:Disconnect() end end)
+            pcall(function() if jumpConn then jumpConn:Disconnect() end end)
+            pcall(function() if ballScanConn then ballScanConn:Disconnect() end end)
+        end
+        local function isBallOwned(ball)
+            if not ball or not ball.Parent then return true end
+            for _, child in pairs(ball:GetChildren()) do
+                if child:IsA("WeldConstraint") or child:IsA("Weld") or child:IsA("Motor6D") then return true end
+            end
+            for _, player in pairs(Players:GetPlayers()) do
+                if player.Character then
+                    local root = player.Character:FindFirstChild("HumanoidRootPart")
+                    if root and (root.Position - ball.Position).Magnitude < 3 then
+                        if (ball.AssemblyLinearVelocity - root.AssemblyLinearVelocity).Magnitude < 5 then return true end
+                    end
+                end
+            end
+            return false
+        end
+        local overlapParams = OverlapParams.new()
+        overlapParams.FilterType = Enum.RaycastFilterType.Exclude
+        ballScanConn = task.spawn(function()
+            while ballManipEnabled do
+                task.wait(0.15)
+                pcall(function()
+                    local char = plr.Character
+                    if not char or not char.PrimaryPart then ballIsNearby = false nearestBall = nil cachedBalls = {} return end
+                    local playerPos = char.PrimaryPart.Position
+                    local found = false
+                    local closest = nil
+                    local closestDist = math.huge
+                    local newCache = {}
+                    local parts = workspace:GetPartBoundsInRadius(playerPos, BALL_RADIUS, overlapParams)
+                    for _, obj in ipairs(parts) do
+                        local size = obj.Size
+                        for _, t in ipairs(targetSizes) do
+                            if math.abs(size.X - t.X) <= SIZE_TOLERANCE and math.abs(size.Y - t.Y) <= SIZE_TOLERANCE and math.abs(size.Z - t.Z) <= SIZE_TOLERANCE then
+                                table.insert(newCache, obj)
+                                if not isBallOwned(obj) then
+                                    local dist = (obj.Position - playerPos).Magnitude
+                                    found = true
+                                    if dist < closestDist then closestDist = dist closest = obj end
+                                end
+                                break
+                            end
+                        end
+                    end
+                    cachedBalls = newCache ballIsNearby = found nearestBall = closest
+                end)
+            end
+        end)
+        local function applyHitbox(hrp)
+            pcall(function()
+                if not hrp or not hrp:IsA("BasePart") then return end
+                if not originalSizes[hrp] then originalSizes[hrp] = hrp.Size originalCollide[hrp] = hrp.CanCollide end
+                hrp.Size = HITBOX_SIZE hrp.CanCollide = false
+            end)
+        end
+        local function restoreHitbox(hrp)
+            pcall(function()
+                if hrp and hrp.Parent and originalSizes[hrp] then
+                    hrp.Size = originalSizes[hrp]
+                    hrp.CanCollide = originalCollide[hrp] or false
+                end
+                originalSizes[hrp] = nil originalCollide[hrp] = nil activeHitboxes[hrp] = nil
+            end)
+        end
+        local function updateHitboxes()
+            pcall(function()
+                local myChar = plr.Character
+                if not myChar then return end
+                local myHRP = myChar:FindFirstChild("HumanoidRootPart")
+                if not myHRP then return end
+                local myPos = myHRP.Position
+                local valid = {}
+                for _, player in pairs(Players:GetPlayers()) do
+                    if player ~= plr and player.Character then
+                        local hrp = player.Character:FindFirstChild("HumanoidRootPart")
+                        if hrp and hrp:IsDescendantOf(workspace) then
+                            if (myPos - hrp.Position).Magnitude <= HITBOX_RADIUS then
+                                valid[hrp] = true activeHitboxes[hrp] = true applyHitbox(hrp)
+                            end
+                        end
+                    end
+                end
+                for hrp in pairs(activeHitboxes) do
+                    if not valid[hrp] or not hrp or not hrp.Parent then restoreHitbox(hrp) end
+                end
+            end)
+        end
+        local function rebuildArmCache(char)
+            pcall(function()
+                cachedArmParts = {}
+                for _, name in ipairs(ARM_PARTS) do
+                    local part = char:FindFirstChild(name)
+                    if part and part:IsA("BasePart") then table.insert(cachedArmParts, part) end
+                end
+            end)
+        end
+        local function disableArmCollision()
+            pcall(function() for _, part in ipairs(cachedArmParts) do if part and part.Parent then part.CanCollide = false end end end)
+        end
+        local function applyHorizPull(char, dt)
+            pcall(function()
+                if not nearestBall or not nearestBall.Parent or nearestBall.AssemblyLinearVelocity.Magnitude < 2 then return end
+                local rootPart = char:FindFirstChild("HumanoidRootPart")
+                if not rootPart then return end
+                local myPos = rootPart.Position
+                local ballPos = nearestBall.Position + nearestBall.AssemblyLinearVelocity * PULL_PREDICT
+                local diff = ballPos - myPos
+                local dist = diff.Magnitude
+                if dist > BALL_RADIUS then return end
+                local dirX = diff.X
+                local dirZ = diff.Z
+                local hMag = math.sqrt(dirX * dirX + dirZ * dirZ)
+                if hMag < 0.1 then return end
+                local vel = rootPart.AssemblyLinearVelocity
+                if math.sqrt(vel.X * vel.X + vel.Z * vel.Z) > MAX_HORIZ_SPEED then return end
+                local scale = math.clamp(dist / BALL_RADIUS, 0.15, 0.75)
+                local force = PULL_FORCE * 1.5 * scale * rootPart.AssemblyMass * dt * 60 / hMag
+                rootPart:ApplyImpulse(Vector3.new(dirX * force, 0, dirZ * force))
+            end)
+        end
+        local function manipulateBall(char, dt)
+            pcall(function()
+                if not nearestBall or not nearestBall.Parent then return end
+                local rootPart = char:FindFirstChild("HumanoidRootPart")
+                if not rootPart then return end
+                local handPart = char:FindFirstChild("RightHand") or char:FindFirstChild("Right Arm") or rootPart
+                local myPos = handPart.Position
+                local ballPos = nearestBall.Position
+                local dist = (ballPos - myPos).Magnitude
+                if dist > MANIP_RADIUS or nearestBall.AssemblyLinearVelocity.Magnitude > MANIP_MAX_SPEED then return end
+                local toHand = myPos - ballPos
+                if toHand.Magnitude < 0.1 then return end
+                local dir = toHand.Unit
+                local proxScale = 1 - math.clamp(dist / MANIP_RADIUS, 0, 1)
+                proxScale = proxScale * proxScale
+                local ballVelY = nearestBall.AssemblyLinearVelocity.Y
+                local isGrounded = math.abs(ballVelY) < 1.0
+                local impulseDir
+                if isGrounded then impulseDir = Vector3.new(dir.X, 2.2, dir.Z).Unit else impulseDir = dir end
+                local force = MANIP_FORCE * 2.2 * proxScale * nearestBall.AssemblyMass * dt * 60
+                nearestBall:ApplyImpulse(impulseDir * force)
+            end)
+        end
+        local function tryHeadBounce(char)
+            pcall(function()
+                if isHeadBounceCooldown or not nearestBall or not nearestBall.Parent or not char or not char.PrimaryPart then return end
+                local rootPart = char.PrimaryPart
+                local myPos = rootPart.Position
+                local feetY = myPos.Y - HIP_HEIGHT
+                for _, player in pairs(Players:GetPlayers()) do
+                    if player ~= plr and player.Character then
+                        local hrp = player.Character:FindFirstChild("HumanoidRootPart")
+                        if hrp then
+                            local headTopY = hrp.Position.Y + 1.5
+                            local dx = myPos.X - hrp.Position.X
+                            local dz = myPos.Z - hrp.Position.Z
+                            local horizDist = math.sqrt(dx*dx + dz*dz)
+                            if horizDist <= HEAD_HORIZ_TOLERANCE and math.abs(feetY - headTopY) <= HEAD_FEET_TOLERANCE then
+                                local dir = nearestBall.Position - myPos
+                                if dir.Magnitude < 0.1 then break end
+                                dir = dir.Unit
+                                dir = Vector3.new(dir.X, math.clamp(dir.Y, 0.1, 0.45), dir.Z).Unit
+                                isHeadBounceCooldown = true
+                                rootPart:ApplyImpulse(dir * HEAD_BOUNCE_FORCE * rootPart.AssemblyMass)
+                                task.delay(HEAD_BOUNCE_COOLDOWN, function() isHeadBounceCooldown = false end)
+                                break
+                            end
+                        end
+                    end
+                end
+            end)
+        end
+        local function tryHeadBoost(char)
+            pcall(function()
+                if not isHolding or isOnCooldown or not ballIsNearby or not char or not char.PrimaryPart then return end
+                local rootPart = char.PrimaryPart
+                local myPos = rootPart.Position
+                local vel = rootPart.AssemblyLinearVelocity
+                local hum = char:FindFirstChildOfClass("Humanoid")
+                if hum and hum.FloorMaterial ~= Enum.Material.Air then return end
+                local onHead = false
+                for _, player in pairs(Players:GetPlayers()) do
+                    if player ~= plr and player.Character then
+                        local hrp = player.Character:FindFirstChild("HumanoidRootPart")
+                        if hrp then
+                            local dx = myPos.X - hrp.Position.X
+                            local dz = myPos.Z - hrp.Position.Z
+                            if math.sqrt(dx*dx + dz*dz) <= 3.5 and myPos.Y >= hrp.Position.Y + 2 then
+                                onHead = true
+                                break
+                            end
+                        end
+                    end
+                end
+                if not onHead or not nearestBall then return end
+                if math.sqrt(vel.X*vel.X + vel.Z*vel.Z) > MAX_HORIZ_SPEED or vel.Y > MAX_VERT_SPEED then return end
+                local dir = nearestBall.Position - myPos
+                if dir.Magnitude < 0.1 then return end
+                dir = dir.Unit
+                dir = Vector3.new(dir.X, math.clamp(dir.Y, -0.3, 0.5), dir.Z).Unit
+                isOnCooldown = true
+                rootPart:ApplyImpulse(dir * BOOST_FORCE * rootPart.AssemblyMass)
+                task.delay(COOLDOWN, function() isOnCooldown = false end)
+            end)
+        end
+        jumpConn = uis.JumpRequest:Connect(function()
+            pcall(function()
+                if isJumpCooldown then return end
+                local char = plr.Character
+                if not char or not char.PrimaryPart then return end
+                local rootPart = char.PrimaryPart
+                local vel = rootPart.AssemblyLinearVelocity
+                local pwr = JUMP_PWR_DEFAULT
+                if nearestBall and nearestBall.Parent then
+                    local dist = (nearestBall.Position - rootPart.Position).Magnitude
+                    if dist <= JUMP_BALL_RADIUS then pwr = JUMP_PWR_BOOSTED end
+                end
+                local jumpForce = math.clamp(pwr - vel.Y, 0, pwr)
+                rootPart:ApplyImpulse(Vector3.new(0, jumpForce, 0) * rootPart.AssemblyMass)
+                isJumpCooldown = true
+                task.delay(JUMP_COOLDOWN, function() isJumpCooldown = false end)
+            end)
+        end)
+        pullConn = uis.InputBegan:Connect(function(input, gameProcessed)
+            pcall(function()
+                local gp = input.UserInputType == Enum.UserInputType.Gamepad1 or input.UserInputType == Enum.UserInputType.Gamepad2
+                if gameProcessed and not gp then return end
+                if input.KeyCode == Enum.KeyCode.DPadRight or input.KeyCode == Enum.KeyCode.ButtonR1 then
+                    isHolding = true isPulling = true jitterOn = true
+                end
+            end)
+        end)
+        pullEndConn = uis.InputEnded:Connect(function(input)
+            pcall(function()
+                if input.KeyCode == Enum.KeyCode.DPadRight or input.KeyCode == Enum.KeyCode.ButtonR1 then
+                    isHolding = false jitterOn = false jitterPhase = false
+                end
+            end)
+        end)
+        local hitboxTimer = 0
+        hitboxConn = run.PreSimulation:Connect(function(dt)
+            pcall(function()
+                if not ballManipEnabled then return end
+                hitboxTimer = hitboxTimer + dt
+                if hitboxTimer >= (1 / 30) then hitboxTimer = 0 updateHitboxes() end
+            end)
+        end)
+        local jitterTimer = 0
+        renderConn = run.RenderStepped:Connect(function(dt)
+            pcall(function()
+                if not ballManipEnabled then return end
+                local char = plr.Character
+                if not char then return end
+                if jitterOn and ballIsNearby then
+                    jitterTimer = jitterTimer + dt
+                    if jitterTimer >= 0.055 then jitterTimer = 0 jitterPhase = not jitterPhase end
+                else
+                    jitterPhase = false jitterTimer = 0
+                end
+                local hrp = char:FindFirstChild("HumanoidRootPart")
+                local ballAirborne = nearestBall and nearestBall.Parent and nearestBall.AssemblyLinearVelocity.Magnitude > 2
+                isPulling = ballAirborne and hrp and (nearestBall.Position - hrp.Position).Magnitude <= BALL_RADIUS or false
+                disableArmCollision()
+                applyHorizPull(char, dt)
+                manipulateBall(char, dt)
+                tryHeadBounce(char)
+                tryHeadBoost(char)
+            end)
+        end)
+        local function applyHipHeight(char)
+            pcall(function()
+                local hum = char and char:FindFirstChildOfClass("Humanoid")
+                if hum then hum.HipHeight = HIP_HEIGHT end
+            end)
+        end
+        local function onCharacter(char)
+            pcall(function()
+                char:WaitForChild("HumanoidRootPart")
+                char:WaitForChild("Humanoid")
+                for hrp in pairs(activeHitboxes) do originalSizes[hrp] = nil activeHitboxes[hrp] = nil end
+                isOnCooldown = false isJumpCooldown = false isHeadBounceCooldown = false isHolding = false isPulling = false jitterOn = false jitterPhase = false ballIsNearby = false nearestBall = nil cachedBalls = {}
+                applyHipHeight(char)
+                rebuildArmCache(char)
+                task.wait(0.5)
+                disableArmCollision()
+            end)
+        end
+        charConn = plr.CharacterAdded:Connect(onCharacter)
+        if plr.Character then task.spawn(function() onCharacter(plr.Character) end) end
+        table.insert(ballManipConnections, hitboxConn)
+        table.insert(ballManipConnections, charConn)
+        table.insert(ballManipConnections, renderConn)
+        table.insert(ballManipConnections, pullConn)
+        table.insert(ballManipConnections, pullEndConn)
+        table.insert(ballManipConnections, jumpConn)
+    end)
+end
+
+local function disableBallManipulation()
+    pcall(function()
+        ballManipEnabled = false
+        for _, conn in ipairs(ballManipConnections) do
+            if conn and typeof(conn) == "RBXScriptConnection" then conn:Disconnect() end
+        end
+        ballManipConnections = {}
+        task.wait(0.1)
+    end)
+end
+
+local MESH_ITEMS = {
+    Coldstare={mesh="rbxassetid://5028704943",tex="rbxassetid://5047708728",par="UpperTorso",scl=Vector3.new(1,1,1),off=CFrame.new(0,0.15,0.65)*CFrame.Angles(0,math.rad(180),0)},
+    DesertVest={mesh="rbxassetid://11755494017",tex="rbxassetid://11755494031",par="UpperTorso",scl=Vector3.new(0.73,1.13,0.75),off=CFrame.new(0,0,-0.05)},
+    DRC={mesh="rbxassetid://6541224713",tex="rbxassetid://7833727918",par="Head",scl=Vector3.new(1.01,1.01,1.01),off=CFrame.new(0,0.91,0.11)*CFrame.Angles(0,math.rad(90),0)},
+    Keff={mesh="rbxassetid://14156626934",tex="rbxassetid://14156781317",par="Head",scl=Vector3.new(0.9,0.9,0.9),off=CFrame.new(-0.06,0.38,0.1)*CFrame.Angles(0,math.rad(180),0)},
+    SeeingStars={mesh="rbxassetid://62139052",tex="rbxassetid://62139103",par="Head",scl=Vector3.new(1.05,1.05,1.05),off=CFrame.new(0,0.05,-0.45)},
+    Subarctic={mesh="rbxassetid://39200112",tex="rbxassetid://39200088",par="Head",scl=Vector3.new(1.02,1.02,1.02),off=CFrame.new(0,0.27,0)},
+    TacticalVest={mesh="rbxassetid://11754584493",tex="rbxassetid://11754584535",par="UpperTorso",scl=Vector3.new(0.73,1.13,0.75),off=CFrame.new(0,0,-0.05)},
+    WhiteTowel={mesh="rbxassetid://6919149797",tex="rbxassetid://6923948446",par="LowerTorso",scl=Vector3.new(1,1,1),off=CFrame.new(0.55,-0.65,-0.15)*CFrame.Angles(0,math.rad(90),0)},
+    Ushanka={mesh="rbxassetid://11752055796",tex="rbxassetid://12710415100",par="Head",scl=Vector3.new(1,1,1),off=CFrame.new(0,0.25,0)*CFrame.Angles(0,math.rad(180),0)},
+}
+
+local CLOTHING_ITEMS = {
+    ["all star shorts (pants)"]={type="Pants",assetId= 108696927942454},
+    ["all star shirt (shirt)"]={type="Shirt",assetId= 124301594697235},
+    ["pilgram top (shirt)"]={type="Shirt",assetId= 4267928524},
+    ["pilgram bottoms (pants)"]={type="Pants",assetId= 4267934078},
+    ["king pants (pants)"]={type="Pants",assetId=10725550576},
+    ["king shirt (shirt)"]={type="Shirt",assetId=6296265575},
+    ["Black World Tour Shirt"]={type="Shirt",assetId=15335037852},
+    ["Pink World Tour Shirt"]={type="Shirt",assetId=15334978300},
+    ["White World Tour Shirt"]={type="Shirt",assetId= 15334975460},
+    ["Black Bandana Shorts"]={type="Pants",assetId=15020463274},
+}
+local ACCESSORY_ITEMS = {
+    ["White CW Set"]={type="Accessory",assetId=97230132426750},
+    ["Black CW Headphones"]={type="Accessory",assetId=93874449800600},
+    ["Black CW Shades"]={type="Accessory",assetId=111757672542159},
+    ["Star Chain"]={type="Accessory",assetId=12269196297},
+}
+
+local equipped = {}
+local origShirtTemplate = nil
+local origPantsTemplate = nil
+
+do
+    local s = character:FindFirstChildOfClass("Shirt")
+    local p = character:FindFirstChildOfClass("Pants")
+    if s then origShirtTemplate = s.ShirtTemplate end
+    if p then origPantsTemplate = p.PantsTemplate end
+end
+
+local function guessSlot(name)
+    local nm = name:lower()
+    if nm:find("face") or nm:find("shade") or nm:find("glass") then return "FaceAccessory" end
+    if nm:find("hair") or nm:find("scene") or nm:find("wig") then return "HairAccessory" end
+    if nm:find("neck") or nm:find("chain") or nm:find("necklace") then return "NeckAccessory" end
+    if nm:find("back") or nm:find("cape") or nm:find("wing") then return "BackAccessory" end
+    if nm:find("waist") or nm:find("belt") then return "WaistAccessory" end
+    if nm:find("shoulder") then return "ShouldersAccessory" end
+    if nm:find("front") then return "FrontAccessory" end
+    if nm:find("headphone") then return "HatAccessory" end
+    return "HatAccessory"
+end
+
+local function equipMeshItem(name)
+    pcall(function()
+        if equipped[name] then return end
+        local d = MESH_ITEMS[name]; if not d then return end
+        local char = plr.Character; if not char then return end
+        local par = char:FindFirstChild(d.par)
+        if not par and d.par == "UpperTorso" then par = char:FindFirstChild("Torso") end
+        if not par and d.par == "LowerTorso" then par = char:FindFirstChild("Torso") end
+        if not par then return end
+        local part = Instance.new("Part")
+        part.Name = name; part.Size = Vector3.new(1,1,1)
+        part.CanCollide = false; part.Anchored = false; part.Massless = true
+        part.Parent = char
+        local mesh = Instance.new("SpecialMesh")
+        mesh.MeshType = Enum.MeshType.FileMesh; mesh.MeshId = d.mesh
+        mesh.TextureId = d.tex; mesh.Scale = d.scl; mesh.Parent = part
+        local weld = Instance.new("Motor6D")
+        weld.Part0 = par; weld.Part1 = part; weld.C0 = d.off; weld.Parent = par
+        part.CFrame = par.CFrame * d.off
+        equipped[name] = {part}
+    end)
+end
+
+local function equipClothing(name)
+    pcall(function()
+        if equipped[name] then return end
+        local d = CLOTHING_ITEMS[name]; if not d then return end
+        local char = plr.Character; if not char then return end
+        local hum = char:FindFirstChildOfClass("Humanoid")
+        local idStr = tostring(d.assetId)
+        local applied = false
+        local appliedParts = {}
+        local function tryApplyObjects(objects)
+            if not objects then return false end
+            local allItems = {}
+            for _, obj in pairs(objects) do
+                table.insert(allItems, obj)
+                pcall(function() for _, child in pairs(obj:GetDescendants()) do table.insert(allItems, child) end end)
+            end
+            for _, item in pairs(allItems) do
+                if item:IsA("Shirt") and (d.type == "Shirt" or d.type == "Accessory") then
+                    local old = char:FindFirstChildOfClass("Shirt")
+                    if old then old:Destroy() end
+                    item.Parent = char
+                    table.insert(appliedParts, item)
+                    return true
+                end
+                if item:IsA("Pants") and (d.type == "Pants" or d.type == "Accessory") then
+                    local old = char:FindFirstChildOfClass("Pants")
+                    if old then old:Destroy() end
+                    item.Parent = char
+                    table.insert(appliedParts, item)
+                    return true
+                end
+                if item:IsA("Accessory") or item:IsA("Accoutrement") then
+                    item.Parent = char
+                    if hum then pcall(function() hum:AddAccessory(item) end) end
+                    table.insert(appliedParts, item)
+                    return true
+                end
+            end
+            return false
+        end
+        if not applied then
+            local ok, result = pcall(function() return game:GetObjects("rbxassetid://"..idStr) end)
+            if ok and result and #result > 0 then applied = tryApplyObjects(result) end
+        end
+        if not applied then
+            local ok2, model = pcall(function() return game:GetService("InsertService"):LoadAsset(d.assetId) end)
+            if ok2 and model then
+                applied = tryApplyObjects({model})
+                if model and model.Parent then pcall(function() model:Destroy() end) end
+            end
+        end
+        if not applied and d.type == "Accessory" then
+            pcall(function()
+                local desc = Instance.new("HumanoidDescription")
+                local slot = guessSlot(name)
+                desc[slot] = idStr
+                local dummyModel = Players:CreateHumanoidModelFromDescription(desc, Enum.HumanoidRigType.R15, Enum.AssetTypeVerification.ClientOnly)
+                desc:Destroy()
+                if dummyModel then
+                    for _, child in pairs(dummyModel:GetChildren()) do
+                        if child:IsA("Accessory") or child:IsA("Accoutrement") then
+                            child.Parent = char
+                            if hum then pcall(function() hum:AddAccessory(child) end) end
+                            table.insert(appliedParts, child)
+                            applied = true
+                        end
+                    end
+                    dummyModel:Destroy()
+                end
+            end)
+        end
+        if not applied then
+            if d.type == "Shirt" then
+                local old = char:FindFirstChildOfClass("Shirt")
+                if old then old:Destroy() end
+                local s = Instance.new("Shirt"); s.Name = name
+                s.ShirtTemplate = "rbxassetid://"..idStr
+                s.Parent = char
+                table.insert(appliedParts, s)
+                applied = true
+            elseif d.type == "Pants" then
+                local old = char:FindFirstChildOfClass("Pants")
+                if old then old:Destroy() end
+                local p = Instance.new("Pants"); p.Name = name
+                p.PantsTemplate = "rbxassetid://"..idStr
+                p.Parent = char
+                table.insert(appliedParts, p)
+                applied = true
+            end
+        end
+        if #appliedParts > 0 then equipped[name] = appliedParts end
+    end)
+end
+
+local function equipAccessory(name)
+    pcall(function()
+        if equipped[name] then return end
+        local d = ACCESSORY_ITEMS[name]; if not d then return end
+        local char = plr.Character; if not char then return end
+        local hum = char:FindFirstChildOfClass("Humanoid")
+        local idStr = tostring(d.assetId)
+        local applied = false
+        local appliedParts = {}
+        local function tryApplyObjects(objects)
+            if not objects then return false end
+            local allItems = {}
+            for _, obj in pairs(objects) do
+                table.insert(allItems, obj)
+                pcall(function() for _, child in pairs(obj:GetDescendants()) do table.insert(allItems, child) end end)
+            end
+            for _, item in pairs(allItems) do
+                if item:IsA("Accessory") or item:IsA("Accoutrement") then
+                    item.Parent = char
+                    if hum then pcall(function() hum:AddAccessory(item) end) end
+                    table.insert(appliedParts, item)
+                    return true
+                end
+            end
+            return false
+        end
+        if not applied then
+            local ok, result = pcall(function() return game:GetObjects("rbxassetid://"..idStr) end)
+            if ok and result and #result > 0 then applied = tryApplyObjects(result) end
+        end
+        if not applied then
+            local ok2, model = pcall(function() return game:GetService("InsertService"):LoadAsset(d.assetId) end)
+            if ok2 and model then
+                applied = tryApplyObjects({model})
+                if model and model.Parent then pcall(function() model:Destroy() end) end
+            end
+        end
+        if not applied then
+            pcall(function()
+                local desc = Instance.new("HumanoidDescription")
+                local slot = guessSlot(name)
+                desc[slot] = idStr
+                local dummyModel = Players:CreateHumanoidModelFromDescription(desc, Enum.HumanoidRigType.R15, Enum.AssetTypeVerification.ClientOnly)
+                desc:Destroy()
+                if dummyModel then
+                    for _, child in pairs(dummyModel:GetChildren()) do
+                        if child:IsA("Accessory") or child:IsA("Accoutrement") then
+                            child.Parent = char
+                            if hum then pcall(function() hum:AddAccessory(child) end) end
+                            table.insert(appliedParts, child)
+                            applied = true
+                        end
+                    end
+                    dummyModel:Destroy()
+                end
+            end)
+        end
+        if #appliedParts > 0 then equipped[name] = appliedParts end
+    end)
+end
+
+local function unequipItem(name)
+    pcall(function()
+        if not equipped[name] then return end
+        local parts = equipped[name]
+        local hadShirt, hadPants = false, false
+        for _, p in ipairs(parts) do
+            if typeof(p) == "Instance" and p.Parent then
+                if p:IsA("Shirt") then hadShirt = true end
+                if p:IsA("Pants") then hadPants = true end
+                p:Destroy()
+            end
+        end
+        equipped[name] = nil
+        local char = plr.Character; if not char then return end
+        if hadShirt and origShirtTemplate then
+            if not char:FindFirstChildOfClass("Shirt") then
+                local s = Instance.new("Shirt"); s.ShirtTemplate = origShirtTemplate; s.Parent = char
+            end
+        end
+        if hadPants and origPantsTemplate then
+            if not char:FindFirstChildOfClass("Pants") then
+                local p = Instance.new("Pants"); p.PantsTemplate = origPantsTemplate; p.Parent = char
+            end
+        end
+    end)
+end
+
+local Fluent
+local success = pcall(function()
+    Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+end)
+
+if not success or not Fluent then warn("Failed to load Fluent library") return end
+
+local Window = Fluent:CreateWindow({
+    Title = "Vortex Hub",
+    SubTitle = "boi ts hub so tuff",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(580, 460),
+    Acrylic = true,
+    Theme = "Darker",
+    MinimizeKey = Enum.KeyCode.LeftControl
+})
+
+local Tabs = {
+    Vicious = Window:AddTab({ Title = "vicious", Icon = "" }),
+    Hell = Window:AddTab({ Title = "hell", Icon = "" }),
+    Animations = Window:AddTab({ Title = "animations", Icon = "" }),
+    Items = Window:AddTab({ Title = "items", Icon = "" }),
+    Clothing = Window:AddTab({ Title = "clothing", Icon = "" }),
+    Graphics = Window:AddTab({ Title = "graphics", Icon = "" }),
+    Executor = Window:AddTab({ Title = "executor", Icon = "" }),
+    Justice = Window:AddTab({ Title = "justice", Icon = "" })
+}
+
+Fluent:Notify({Title = "Project Kronos",Content = "boi ts hub so tuff",Duration = 5})
+
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    if input.KeyCode == Enum.KeyCode.RightControl then Window.Minimized = not Window.Minimized end
+end)
+
+local executorName, platform = detectExecutor()
+
+Tabs.Executor:AddParagraph({Title = "executor info",Content = "Executor: " .. executorName .. "\nPlatform: " .. platform})
+
+Tabs.Vicious:AddToggle("Headsize", {Title = "headsize",Default = false,Callback = function(Value) headsizeEnabled = Value if Value then enableHeadsize() else disableHeadsize() end end})
+Tabs.Vicious:AddSlider("HeadsizeScale", {Title = "head scale",Default = 1.4,Min = 1.0,Max = 5.0,Rounding = 1,Callback = function(Value) headsizeScale = Value if headsizeEnabled then disableHeadsize() enableHeadsize() end end})
+Tabs.Vicious:AddSlider("HeadsizeTransparency", {Title = "head transparency",Default = 0,Min = 0,Max = 1,Rounding = 1,Callback = function(Value) headsizeTransparency = Value if headsizeEnabled and headsizePart then headsizePart.Transparency = Value end end})
+Tabs.Vicious:AddToggle("AutoPJ", {Title = "perfect pj",Default = false,Callback = function(Value) autoPJEnabled = Value if Value then enableAutoPJ() else disableAutoPJ() end end})
+Tabs.Vicious:AddToggle("StickyHead", {Title = "sticky head",Default = false,Callback = function(Value) stickyHeadEnabled = Value end})
+Tabs.Vicious:AddSlider("StickyPull", {Title = "pull strength",Default = 2.0,Min = 1.0,Max = 4.0,Rounding = 1,Callback = function(Value) stickyPullStrength = Value end})
+Tabs.Vicious:AddSlider("StickyStickiness", {Title = "stickiness",Default = 2.0,Min = 1.0,Max = 4.0,Rounding = 1,Callback = function(Value) stickyStickiness = Value end})
+Tabs.Vicious:AddToggle("LegitPV", {Title = "legit pv",Default = false,Callback = function(Value) smoothPullEnabled = Value end})
+
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        if smoothPullEnabled then
+            isSmoothPulling = true
+            spawn(function() while isSmoothPulling do smoothTeleportToBall() wait(0.01) end end)
+        end
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(input, gameProcessed)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then isSmoothPulling = false end
+end)
+
+Tabs.Vicious:AddSlider("PullStrength", {Title = "pull strength",Default = 0.08,Min = 0.01,Max = 1,Rounding = 2,Callback = function(Value) magnetSmoothness = Value end})
+Tabs.Vicious:AddSlider("MaxRange", {Title = "max range",Default = 100,Min = 1,Max = 100,Rounding = 0,Callback = function(Value) maxPullDistance = Value end})
+Tabs.Vicious:AddToggle("AutoDB", {Title = "auto db",Default = false,Callback = function(Value) autoDBEnabled = Value if Value then autoDBTarget = findNearestPlayer() end end})
+Tabs.Vicious:AddSlider("DBIntensity", {Title = "db intensity",Default = 0.5,Min = 0,Max = 1,Rounding = 1,Callback = function(Value) autoDBStrength = Value end})
+Tabs.Vicious:AddInput("NameChanger", {Title = "display name",Default = "",Placeholder = "enter name",Numeric = false,Finished = false,Callback = function(Value) customName = Value if customName ~= "" then applyNameChange() end end})
+
+Tabs.Hell:AddToggle("JumpPower", {Title = "jump power",Default = false,Callback = function(value)
+    jumpPowerEnabled = value
+    if value then
+        if jumpConnection then jumpConnection:Disconnect() end
+        jumpConnection = humanoid.Jumping:Connect(function()
+            if jumpPowerEnabled and rootPart then
+                rootPart.AssemblyLinearVelocity = Vector3.new(rootPart.AssemblyLinearVelocity.X, customJumpPower, rootPart.AssemblyLinearVelocity.Z)
+            end
+        end)
+    else
+        if jumpConnection then jumpConnection:Disconnect() end
+        jumpConnection = nil
+    end
+end})
+Tabs.Hell:AddSlider("JPValue", {Title = "jump power value",Default = 50,Min = 10,Max = 200,Rounding = 0,Callback = function(Value) customJumpPower = Value end})
+Tabs.Hell:AddToggle("Gravity", {Title = "gravity",Default = false,Callback = function(Value) gravityEnabled = Value if Value then Workspace.Gravity = customGravity else Workspace.Gravity = 196.2 end end})
+Tabs.Hell:AddSlider("GravityValue", {Title = "gravity value",Default = 196,Min = 10,Max = 400,Rounding = 0,Callback = function(Value) customGravity = Value if gravityEnabled then Workspace.Gravity = Value end end})
+Tabs.Hell:AddButton({Title = "reset gravity",Callback = function() customGravity = 196.2 Workspace.Gravity = 196.2 Fluent:Notify({Title = "vortex hub",Content = "gravity set to default",Duration = 2}) end})
+Tabs.Hell:AddToggle("BallManip", {Title = "ball manipulation",Default = false,Callback = function(Value) ballManipEnabled = Value if Value then enableBallManipulation() else disableBallManipulation() end end})
+Tabs.Hell:AddToggle("Boost", {Title = "boost (with ball)",Default = false,Callback = function(Value) boostEnabled = Value end})
+Tabs.Hell:AddSlider("BoostPower", {Title = "boost power",Default = 25,Min = 25,Max = 135,Rounding = 0,Callback = function(Value) boostPower = Value end})
+Tabs.Hell:AddParagraph({Title = "boost (no ball)",Content = "this doesnt detect the football / look more unlegit"})
+Tabs.Hell:AddToggle("SimpleBoost", {Title = "boost",Default = false,Callback = function(Value) simpleBoostEnabled = Value end})
+Tabs.Hell:AddSlider("SimpleBoostPower", {Title = "boost power",Default = 25,Min = 25,Max = 135,Rounding = 0,Callback = function(Value) simpleBoostPower = Value end})
+
+Tabs.Animations:AddButton({Title = "bbs",Callback = function() LoadTrack(83690407262789, 1.35) end})
+Tabs.Animations:AddButton({Title = "bop",Callback = function() LoadTrack(103538719480738, 1.1) end})
+Tabs.Animations:AddButton({Title = "hackers",Callback = function() LoadTrack(10714364213, 1) end})
+Tabs.Animations:AddButton({Title = "hd",Callback = function() LoadTrack(133666867152446, 1) end})
+Tabs.Animations:AddButton({Title = "keep it hot",Callback = function() LoadTrack(98979972129763, 1) end})
+Tabs.Animations:AddButton({Title = "ccl",Callback = function() LoadTrack(92859581691366, 1) end})
+Tabs.Animations:AddButton({Title = "stop animation",Callback = function() if CurrentTrack then CurrentTrack:Stop(0) CurrentTrack = nil end end})
+
+for name, _ in pairs(MESH_ITEMS) do
+    Tabs.Items:AddToggle("Mesh_"..name, {Title = name,Default = false,Callback = function(Value) if Value then equipMeshItem(name) else unequipItem(name) end end})
+end
+
+for name, _ in pairs(ACCESSORY_ITEMS) do
+    Tabs.Items:AddToggle("Acc_"..name, {Title = name,Default = false,Callback = function(Value) if Value then equipAccessory(name) else unequipItem(name) end end})
+end
+
+for name, _ in pairs(CLOTHING_ITEMS) do
+    Tabs.Clothing:AddToggle("Clothing_"..name, {Title = name,Default = false,Callback = function(Value) if Value then equipClothing(name) else unequipItem(name) end end})
+end
+
+Tabs.Graphics:AddButton({Title = "potato graphics",Callback = function()
+    settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
+    Lighting.GlobalShadows = false
+    Lighting.FogEnd = 9e9
+    Lighting.Brightness = 0
+    for _, effect in pairs(Lighting:GetChildren()) do
+        if effect:IsA("BlurEffect") then effect.Size = 4
+        elseif effect:IsA("SunRaysEffect") or effect:IsA("ColorCorrectionEffect") or effect:IsA("BloomEffect") or effect:IsA("DepthOfFieldEffect") then effect.Enabled = false end
+    end
+    local terrain = Workspace.Terrain
+    terrain.WaterWaveSize = 0
+    terrain.WaterWaveSpeed = 0
+    terrain.WaterReflectance = 0
+    terrain.WaterTransparency = 0
+    for _, obj in pairs(Workspace:GetDescendants()) do
+        if obj:IsA("Part") or obj:IsA("MeshPart") then obj.Material = Enum.Material.Plastic obj.Reflectance = 0
+        elseif obj:IsA("ParticleEmitter") or obj:IsA("Trail") or obj:IsA("Smoke") or obj:IsA("Fire") or obj:IsA("Sparkles") then obj.Enabled = false end
+    end
+    Fluent:Notify({Title = "vortex hub",Content = "graphics optimized",Duration = 3})
+end})
+
+Tabs.Justice:AddButton({Title = "unload script",Callback = function()
+    Fluent:Notify({Title = "vortex hub",Content = "destroying vortex hub",Duration = 2})
+    task.wait(0.5)
+    if ballManipEnabled then disableBallManipulation() end
+    if stickyJumpConnection then stickyJumpConnection:Disconnect() end
+    if autoPJConnection then autoPJConnection:Disconnect() end
+    if headsizeEnabled then disableHeadsize() end
+    Window:Destroy()
+    smoothPullEnabled = false
+    boostEnabled = false
+    simpleBoostEnabled = false
+    jumpPowerEnabled = false
+    gravityEnabled = false
+    ballManipEnabled = false
+    stickyHeadEnabled = false
+    autoPJEnabled = false
+    headsizeEnabled = false
+    if jumpConnection then jumpConnection:Disconnect() end
+    Workspace.Gravity = 196.2
+    pcall(function()
+        if getconnections then
+            for _, v in pairs(getconnections(game:GetService("LogService").MessageOut)) do
+                pcall(function() v:Enable() end)
+            end
+        end
+    end)
+end})
